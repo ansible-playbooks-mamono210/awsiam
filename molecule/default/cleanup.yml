@@ -1,0 +1,28 @@
+---
+- name: Clean up
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: set_fact molecule_platforms
+      set_fact:
+        molecule_platforms: "{{ molecule_yml.platforms }}"
+
+    - name: Execute
+      ansible.builtin.include_role:
+        name: mamono210.awsiam
+      vars:
+        aws_region: "{{ molecule_platforms.0.aws_region }}"
+        awsiam_user: "{{ molecule_platforms.0.awsiam_user }}"
+        awsiam_user_state: absent
+
+    # Mandatory configuration for Molecule to function.
+    - name: Populate instance config
+      ansible.builtin.set_fact:
+        instance_conf: {}
+
+    - name: Dump instance config
+      ansible.builtin.copy:
+        content: "{{ instance_conf | to_json | from_json | community.molecule.to_yaml }}"
+        dest: "{{ molecule_instance_config }}"

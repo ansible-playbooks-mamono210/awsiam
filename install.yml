@@ -1,0 +1,8 @@
+---
+- name: Create IAM user with policy or delete IAM user
+  hosts: localhost
+  connection: local
+  become: false
+
+  roles:
+    - role: mamono210.awsiam
